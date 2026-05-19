@@ -1,0 +1,16 @@
+Dockerfile
+.dockerignore
+
+node_modules
+npm-debug.log
+.next
+
+.prettierignore
+.prettierrc
+eslint.config.mjs
+
+.git
+.gitignore
+.github
+
+.env.local
