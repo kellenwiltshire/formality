@@ -86,14 +86,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var updateUser NewUser
 	_ = json.NewDecoder(r.Body).Decode(&updateUser)
 
-
-	var user User
 	_, dbErr := database.Db.Exec("UPDATE users SET email = $1, role = $2 WHERE id = $3", updateUser.Email, updateUser.Role, id)
 	if dbErr != nil {
 		fmt.Println(dbErr)
 		response.HttpResponse(w, "", 0, "Unable to update user", 500)
 	}
-	response.HttpResponse(w, user, 1, "", 200)
+	response.HttpResponse(w, "", 1, "User updated", 200)
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {

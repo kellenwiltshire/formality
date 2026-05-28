@@ -2,6 +2,8 @@ package routes
 
 import (
 	"fmt"
+	"formality/backend/forms"
+	"formality/backend/submissions"
 	"formality/backend/users"
 	"log"
 	"net/http"
@@ -35,14 +37,17 @@ func Routes() {
 	r.HandleFunc("/users", users.CreateUser).Methods("POST")
 
 	// Form Routes
-	// r.HandleFunc("/forms/{id}", getForm).Methods("GET")
-	// r.HandleFunc("/forms/{id}", updateForm).Methods("PUT")
-	// r.HandleFunc("/forms/{id}", deleteForm).Methods("DELETE")
-	// r.HandleFunc("/forms/{id}", createFormResponse).Methods("POST")
+	r.HandleFunc("/forms/{id}", forms.GetForm).Methods("GET")
+	r.HandleFunc("/forms/{id}", forms.UpdateForm).Methods("PUT")
+	r.HandleFunc("/forms/{id}", forms.DeleteForm).Methods("DELETE")
+	r.HandleFunc("/forms/{id}", submissions.CreateFormResponse).Methods("POST")
 
-	// r.HandleFunc("/forms/{id}/responses", getResponses).Methods("GET")
-	// r.HandleFunc("/forms/{id}/responses/{id}", getFormResponse).Methods("GET")
-	// r.HandleFunc("/forms/{id}/responses/{id}", getFormResponse).Methods("DELETE")
+	r.HandleFunc("/forms", forms.GetAllFormsForUser).Methods("GET")
+	r.HandleFunc("/forms", forms.CreateForm).Methods("POST")
+
+	r.HandleFunc("/forms/{id}/responses", submissions.GetFormResponses).Methods("GET")
+	r.HandleFunc("/forms/{form_id}/responses/{id}", submissions.GetFormResponse).Methods("GET")
+	r.HandleFunc("/forms/{form_id}/responses/{id}", submissions.DeleteFormResponse).Methods("DELETE")
 
 	// // SMTP
 	// r.HandleFunc("/email-settings", getSMTP).Methods("GET")
