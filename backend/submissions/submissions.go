@@ -85,7 +85,7 @@ func CreateFormResponse (w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// 1. Optional but recommended: Validate that it is actually valid JSON
+	// Validate that it is actually valid JSON
 	if !json.Valid(body) {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return

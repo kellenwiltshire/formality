@@ -3,6 +3,8 @@ package routes
 import (
 	"fmt"
 	"formality/backend/forms"
+	sendmail "formality/backend/send_mail"
+	smtp_settings "formality/backend/smtp"
 	"formality/backend/submissions"
 	"formality/backend/users"
 	"log"
@@ -49,11 +51,13 @@ func Routes() {
 	r.HandleFunc("/forms/{form_id}/responses/{id}", submissions.GetFormResponse).Methods("GET")
 	r.HandleFunc("/forms/{form_id}/responses/{id}", submissions.DeleteFormResponse).Methods("DELETE")
 
-	// // SMTP
-	// r.HandleFunc("/email-settings", getSMTP).Methods("GET")
-	// r.HandleFunc("/email-settings", getSMTP).Methods("POST")
-	// r.HandleFunc("/email-settings", getSMTP).Methods("PUT")
-	// r.HandleFunc("/email-settings", getSMTP).Methods("DELETE")
+	// SMTP
+	r.HandleFunc("/email-settings/{user_id}", smtp_settings.GetSMTPSettings).Methods("GET")
+	r.HandleFunc("/email-settings/{user_id}", smtp_settings.CreateSMTPSettings).Methods("POST")
+	r.HandleFunc("/email-settings/{user_id}", smtp_settings.UpdateSMTPSettings).Methods("PUT")
+	r.HandleFunc("/email-settings/{user_id}", smtp_settings.DeleteSMTPSettings).Methods("DELETE")
+	r.HandleFunc("/email-settings/{user_id}/test", sendmail.TestEmail).Methods("GET")
+
 
 	// Start the Service
 	port := goDotEnvVariable("PORT")
