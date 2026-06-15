@@ -2,12 +2,12 @@ package routes
 
 import (
 	"fmt"
-	"formality/backend/forms"
-	loadenv "formality/backend/load_env"
-	sendmail "formality/backend/send_mail"
-	smtp_settings "formality/backend/smtp"
-	"formality/backend/submissions"
-	"formality/backend/users"
+	"formality/packages/forms"
+	loadenv "formality/packages/load_env"
+	sendmail "formality/packages/send_mail"
+	smtp_settings "formality/packages/smtp"
+	"formality/packages/submissions"
+	"formality/packages/users"
 	"log"
 	"net/http"
 
@@ -44,7 +44,6 @@ func Routes() {
 	r.HandleFunc("/email-settings/{user_id}", smtp_settings.UpdateSMTPSettings).Methods("PUT")
 	r.HandleFunc("/email-settings/{user_id}", smtp_settings.DeleteSMTPSettings).Methods("DELETE")
 	r.HandleFunc("/email-settings/{user_id}/test", sendmail.TestEmail).Methods("GET")
-
 
 	// Start the Service
 	port := loadenv.LoadDotEnvVariable("PORT")

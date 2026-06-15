@@ -2,8 +2,8 @@ package listener
 
 import (
 	"fmt"
-	loadenv "formality/backend/load_env"
-	sendmail "formality/backend/send_mail"
+	loadenv "formality/packages/load_env"
+	sendmail "formality/packages/send_mail"
 	"time"
 
 	"github.com/lib/pq"

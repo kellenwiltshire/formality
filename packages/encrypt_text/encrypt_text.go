@@ -6,7 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	loadenv "formality/backend/load_env"
+	loadenv "formality/packages/load_env"
 	"io"
 )
 

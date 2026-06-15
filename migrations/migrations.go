@@ -1,9 +1,9 @@
-package migration
+package migrations
 
 import (
 	"database/sql"
 	"fmt"
-	loadenv "formality/backend/load_env"
+	loadenv "formality/packages/load_env"
 	"log"
 
 	_ "github.com/lib/pq"

@@ -1,4 +1,4 @@
-module formality/backend
+module formality
 
 go 1.26.3
 

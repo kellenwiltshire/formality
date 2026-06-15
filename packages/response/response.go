@@ -12,18 +12,18 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-func HttpResponse [T any](w http.ResponseWriter, data T, success int, message string, status int) {
+func HttpResponse[T any](w http.ResponseWriter, data T, success int, message string, status int) {
 	var response Response
 
 	response.Data = data
 	response.Success = success
 	response.Message = message
 
-	if success < 1{
+	if success < 1 {
 		fmt.Println(message)
 	}
-	
-	w.Header().Set("Content-Type","application/json")
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(response)
 }

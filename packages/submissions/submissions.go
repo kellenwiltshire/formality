@@ -3,8 +3,8 @@ package submissions
 import (
 	"encoding/json"
 	"fmt"
-	"formality/backend/database"
-	"formality/backend/response"
+	"formality/packages/database"
+	"formality/packages/response"
 	"io"
 	"net/http"
 
@@ -12,21 +12,21 @@ import (
 )
 
 type Submission struct {
-	Id				int		`json:"id"`
-	FormId			string	`json:"form_id"`
-	Payload			string	`json:"payload"`
-	Submitted_at	string	`json:"submitted_at"`
-	Status			string	`json:"status"`
+	Id           int    `json:"id"`
+	FormId       string `json:"form_id"`
+	Payload      string `json:"payload"`
+	Submitted_at string `json:"submitted_at"`
+	Status       string `json:"status"`
 }
 
-func GetFormResponses (w http.ResponseWriter, r *http.Request) {
+func GetFormResponses(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-    id := params["id"]
+	id := params["id"]
 
 	if id == "" {
-        response.HttpResponse(w, "", 0, "Invalid ID", 400)
-        return
-    }
+		response.HttpResponse(w, "", 0, "Invalid ID", 400)
+		return
+	}
 
 	var submissions []Submission
 	rows, dbErr := database.Db.Query("SELECT id, form_id, payload, submitted_at, status FROM form_submissions WHERE form_id = $1", id)
@@ -37,8 +37,7 @@ func GetFormResponses (w http.ResponseWriter, r *http.Request) {
 	}
 	for rows.Next() {
 		var submission Submission
-		if err := rows.Scan(&submission.Id, &submission.FormId, &submission.Payload, &submission.Submitted_at, &submission.Status); 
-		err != nil {
+		if err := rows.Scan(&submission.Id, &submission.FormId, &submission.Payload, &submission.Submitted_at, &submission.Status); err != nil {
 			fmt.Println(err)
 			response.HttpResponse(w, "", 0, "Unable to get all form rows", 500)
 			return
@@ -49,15 +48,15 @@ func GetFormResponses (w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetFormResponse (w http.ResponseWriter, r *http.Request) {
+func GetFormResponse(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-    id := params["id"]
+	id := params["id"]
 	form_id := params["form_id"]
 
 	if id == "" || form_id == "" {
-        response.HttpResponse(w, "", 0, "Invalid ID", 400)
-        return
-    }
+		response.HttpResponse(w, "", 0, "Invalid ID", 400)
+		return
+	}
 
 	var submission Submission
 	dbErr := database.Db.QueryRow("SELECT id, form_id, payload, submitted_at, status FROM form_submissions WHERE form_id = $1 AND id = $2", form_id, id).Scan(&submission.Id, &submission.FormId, &submission.Payload, &submission.Submitted_at, &submission.Status)
@@ -67,17 +66,17 @@ func GetFormResponse (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.HttpResponse(w, submission, 1, "", 200)
-	
+
 }
 
-func CreateFormResponse (w http.ResponseWriter, r *http.Request) {
+func CreateFormResponse(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-    id := params["id"]
+	id := params["id"]
 
 	if id == "" {
-        response.HttpResponse(w, "", 0, "Invalid ID", 400)
-        return
-    }
+		response.HttpResponse(w, "", 0, "Invalid ID", 400)
+		return
+	}
 
 	// Read the raw HTTP body
 	body, err := io.ReadAll(r.Body)
@@ -105,15 +104,15 @@ func CreateFormResponse (w http.ResponseWriter, r *http.Request) {
 
 }
 
-func DeleteFormResponse (w http.ResponseWriter, r *http.Request) {
+func DeleteFormResponse(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-    id := params["id"]
+	id := params["id"]
 	form_id := params["form_id"]
 
 	if id == "" || form_id == "" {
-        response.HttpResponse(w, "", 0, "Invalid ID", 400)
-        return
-    }
+		response.HttpResponse(w, "", 0, "Invalid ID", 400)
+		return
+	}
 
 	_, dbErr := database.Db.Exec("DELETE FROM form_submissions WHERE id = $1 AND form_id = $2", id, form_id)
 	if dbErr != nil {

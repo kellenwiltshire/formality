@@ -3,8 +3,8 @@ package users
 import (
 	"encoding/json"
 	"fmt"
-	"formality/backend/database"
-	"formality/backend/response"
+	"formality/packages/database"
+	"formality/packages/response"
 	"net/http"
 	"strconv"
 
@@ -12,36 +12,34 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-
-
 type NewUser struct {
-	ID			int		`json:"id"`
-	Email		string	`json:"email"`
-	Password	string	`json:"password"`
-	Role		string	`json:"role"`
+	ID       int    `json:"id"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
 }
 
 type User struct {
-	ID			int		`json:"id"`
-	Email		string	`json:"email"`
-	Role		string	`json:"role"`
+	ID    int    `json:"id"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
 }
 
-func HashPassword(password string) (string, error){
+func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
 
 func CheckPasswordHash(password, hash string) bool {
-    err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-    return err == nil
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var newUser NewUser
 	_ = json.NewDecoder(r.Body).Decode(&newUser)
 
-	if newUser.Email == "" || newUser.Password == ""{
+	if newUser.Email == "" || newUser.Password == "" {
 		response.HttpResponse(w, "", 0, "Please provide a username and password", 400)
 		return
 	}
@@ -59,11 +57,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-    id, err := strconv.Atoi(params["id"])
+	id, err := strconv.Atoi(params["id"])
 	if err != nil {
-        response.HttpResponse(w, "", 0, "Invalid ID", 400)
-        return
-    }
+		response.HttpResponse(w, "", 0, "Invalid ID", 400)
+		return
+	}
 
 	var user User
 	dbErr := database.Db.QueryRow("SELECT id, email, role FROM users WHERE id = $1", id).Scan(&user.ID, &user.Email, &user.Role)
@@ -77,11 +75,11 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-    id, err := strconv.Atoi(params["id"])
+	id, err := strconv.Atoi(params["id"])
 	if err != nil {
-        response.HttpResponse(w, "", 0, "Invalid ID", 400)
-        return
-    }
+		response.HttpResponse(w, "", 0, "Invalid ID", 400)
+		return
+	}
 
 	var updateUser NewUser
 	_ = json.NewDecoder(r.Body).Decode(&updateUser)
@@ -96,11 +94,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-    id, err := strconv.Atoi(params["id"])
+	id, err := strconv.Atoi(params["id"])
 	if err != nil {
-        response.HttpResponse(w, "", 0, "Invalid ID", 400)
-        return
-    }
+		response.HttpResponse(w, "", 0, "Invalid ID", 400)
+		return
+	}
 
 	_, dbErr := database.Db.Exec("DELETE FROM users WHERE id = $1", id)
 	if dbErr != nil {
@@ -119,8 +117,7 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	for rows.Next() {
 		var user User
-		if err := rows.Scan(&user.ID, &user.Email, &user.Role); 
-		err != nil {
+		if err := rows.Scan(&user.ID, &user.Email, &user.Role); err != nil {
 			fmt.Println(err)
 			response.HttpResponse(w, "", 0, "Unable to get all user rows", 500)
 		}
@@ -128,4 +125,3 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	response.HttpResponse(w, users, 1, "", 200)
 }
-
