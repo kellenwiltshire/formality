@@ -3,29 +3,16 @@ package routes
 import (
 	"fmt"
 	"formality/backend/forms"
+	loadenv "formality/backend/load_env"
 	sendmail "formality/backend/send_mail"
 	smtp_settings "formality/backend/smtp"
 	"formality/backend/submissions"
 	"formality/backend/users"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 )
-
-func goDotEnvVariable(key string) string {
-
-  // load .env file
-  err := godotenv.Load(".env")
-
-  if err != nil {
-    log.Fatalf("Error loading .env file")
-  }
-
-  return os.Getenv(key)
-}
 
 func Routes() {
 	r := mux.NewRouter()
@@ -60,7 +47,7 @@ func Routes() {
 
 
 	// Start the Service
-	port := goDotEnvVariable("PORT")
+	port := loadenv.LoadDotEnvVariable("PORT")
 	fmt.Println("The server is running on port: ", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }

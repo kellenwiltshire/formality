@@ -33,6 +33,7 @@ func GetFormResponses (w http.ResponseWriter, r *http.Request) {
 	if dbErr != nil {
 		fmt.Println(dbErr)
 		response.HttpResponse(w, "", 0, "Unable to get all submissions", 500)
+		return
 	}
 	for rows.Next() {
 		var submission Submission
@@ -63,6 +64,7 @@ func GetFormResponse (w http.ResponseWriter, r *http.Request) {
 	if dbErr != nil {
 		fmt.Println(dbErr)
 		response.HttpResponse(w, "", 0, "Unable to get all submissions", 500)
+		return
 	}
 	response.HttpResponse(w, submission, 1, "", 200)
 	
@@ -91,7 +93,8 @@ func CreateFormResponse (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, error := database.Db.Exec("INSERT INTO form_submissions (form_id, payload) values ($1, $2, $3)", id, body)
+	var response_id int64
+	error := database.Db.QueryRow("INSERT INTO form_submissions (form_id, payload) values ($1, $2) RETURNING id", id, body).Scan(&response_id)
 	if error != nil {
 		fmt.Println(error)
 		response.HttpResponse(w, "", 0, "Unable to create new submission", 500)
@@ -100,7 +103,6 @@ func CreateFormResponse (w http.ResponseWriter, r *http.Request) {
 		response.HttpResponse(w, "", 1, "submission created", 200)
 	}
 
-	// TODO process the submission further
 }
 
 func DeleteFormResponse (w http.ResponseWriter, r *http.Request) {

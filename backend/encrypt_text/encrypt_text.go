@@ -6,27 +6,12 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	loadenv "formality/backend/load_env"
 	"io"
-	"log"
-	"os"
-
-	"github.com/joho/godotenv"
 )
 
-func goDotEnvVariable(key string) string {
-
-  // load .env file
-  err := godotenv.Load(".env")
-
-  if err != nil {
-    log.Fatalf("Error loading .env file")
-  }
-
-  return os.Getenv(key)
-}
-
 func EncryptAES(plaintext string) (string, error) {
-	secretKey := goDotEnvVariable("SECRET_KEY")
+	secretKey := loadenv.LoadDotEnvVariable("SECRET_KEY")
 
 	key, err := base64.StdEncoding.DecodeString(secretKey)
 	if err != nil {
@@ -54,7 +39,7 @@ func EncryptAES(plaintext string) (string, error) {
 }
 
 func DecryptAES(encrypted string) (string, error) {
-	secretKey := goDotEnvVariable("SECRET_KEY")
+	secretKey := loadenv.LoadDotEnvVariable("SECRET_KEY")
 
 	key, err := base64.StdEncoding.DecodeString(secretKey)
 	if err != nil {
