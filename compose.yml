@@ -3,6 +3,7 @@ services:
     image: postgres:17
     networks:
       - internal
+      - default
     ports:
       - '${DB_PORT}:5432'
     environment:
@@ -13,11 +14,9 @@ services:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_DB=${DB_DATABASE_NAME}
     volumes:
-      - ./db-data/:/var/lib/postgresql/data/
+      - './db-data:/var/lib/postgresql/data/:rw'
 
 networks:
+  default:
   internal:
     internal: true
-
-volumes:
-  postgres-data:
