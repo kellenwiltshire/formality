@@ -18,7 +18,7 @@ type TokenHandler struct {
 }
 
 type createTokenRequest struct {
-	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -41,9 +41,9 @@ func (h *TokenHandler) HandleCreateToken(w http.ResponseWriter, r *http.Request)
 	}
 
 	// lets get the user
-	user, err := h.userStore.GetUserByUsername(req.Username)
+	user, err := h.userStore.GetUserByEmail(req.Email)
 	if err != nil || user == nil {
-		h.logger.Printf("ERROR: GetUserByUsername: %v", err)
+		h.logger.Printf("ERROR: GetUserByEmail: %v", err)
 		util.WriteJSON(w, http.StatusInternalServerError, util.Envelope{"error": "internal server error"})
 		return
 	}
@@ -60,13 +60,30 @@ func (h *TokenHandler) HandleCreateToken(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	token, err := h.tokenStore.CreateNewToken(user.Id, 24*time.Hour, tokens.ScopeAuth)
+	var scope string
+
+	if user.Role == tokens.ScopeAdmin {
+		scope = tokens.ScopeAdmin
+	} else {
+		scope = tokens.ScopeAuth
+	}
+
+	token, err := h.tokenStore.CreateNewToken(user.Id, 24*time.Hour, scope)
 	if err != nil {
 		h.logger.Printf("Error: Creating Token %v", err)
 		util.WriteJSON(w, http.StatusInternalServerError, util.Envelope{"error": "internal server error"})
 		return
 
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "formality_auth",
+		Value:    token.Plaintext,
+		Expires:  token.Expiry,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Path:     "/",
+	})
 
 	util.WriteJSON(w, http.StatusCreated, util.Envelope{"auth_token": token})
 

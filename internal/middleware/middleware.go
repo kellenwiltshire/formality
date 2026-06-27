@@ -2,11 +2,10 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"formality/internal/store"
-	"formality/internal/tokens"
 	"formality/internal/util"
 	"net/http"
-	"strings"
 )
 
 type UserMiddleware struct {
@@ -32,26 +31,19 @@ func GetUser(r *http.Request) *store.User {
 
 func (um *UserMiddleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// within this anonymouse function
-		// we can interject any incoming requests to our server
 
-		w.Header().Add("Vary", "Authorization")
-		authHeader := r.Header.Get("Authorization")
-
-		if authHeader == "" {
-			r = SetUser(r, store.AnonymousUser)
-			next.ServeHTTP(w, r)
+		c, err := r.Cookie("formality_auth")
+		if err != nil {
+			if err == http.ErrNoCookie {
+				util.WriteJSON(w, http.StatusUnauthorized, util.Envelope{"error": "no token received"})
+				return
+			}
+			util.WriteJSON(w, http.StatusInternalServerError, util.Envelope{"error": "internal service error"})
 			return
 		}
 
-		headerParts := strings.Split(authHeader, " ") // Bearer <TOKEN>
-		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			util.WriteJSON(w, http.StatusUnauthorized, util.Envelope{"error": "invalid authorization header"})
-			return
-		}
-
-		token := headerParts[1]
-		user, err := um.UserStore.GetUserToken(tokens.ScopeAuth, token)
+		token := c.Value
+		user, err := um.UserStore.GetUserToken(token)
 		if err != nil {
 			util.WriteJSON(w, http.StatusUnauthorized, util.Envelope{"error": "invalid token"})
 			return
@@ -82,27 +74,21 @@ func (um *UserMiddleware) RequireUser(next http.HandlerFunc) http.HandlerFunc {
 
 func (um *UserMiddleware) AuthenticateAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// within this anonymouse function
-		// we can interject any incoming requests to our server
 
-		w.Header().Add("Vary", "Authorization")
-		authHeader := r.Header.Get("Authorization")
-
-		if authHeader == "" {
-			r = SetUser(r, store.AnonymousUser)
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		headerParts := strings.Split(authHeader, " ") // Bearer <TOKEN>
-		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			util.WriteJSON(w, http.StatusUnauthorized, util.Envelope{"error": "invalid authorization header"})
-			return
-		}
-
-		token := headerParts[1]
-		user, err := um.UserStore.GetUserToken(tokens.ScopeAdmin, token)
+		c, err := r.Cookie("formality_auth")
 		if err != nil {
+			if err == http.ErrNoCookie {
+				util.WriteJSON(w, http.StatusUnauthorized, util.Envelope{"error": "token expired or invalid"})
+				return
+			}
+			util.WriteJSON(w, http.StatusInternalServerError, util.Envelope{"error": "internal service error"})
+			return
+		}
+
+		token := c.Value
+		user, err := um.UserStore.GetAdminToken(token)
+		if err != nil {
+			fmt.Printf("ERROR: %v \n", err)
 			util.WriteJSON(w, http.StatusUnauthorized, util.Envelope{"error": "invalid token"})
 			return
 		}

@@ -107,7 +107,7 @@ func (h *UserHandler) HandleUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var updateUser struct {
 		Email    *string `json:"email"`
-		Role     *string `json:"role"`
+		Role     *string `json:"role"` // TODO update this so that non-admin can't change their role...
 		Password *string `json:"password"`
 	}
 
@@ -178,7 +178,7 @@ func (h *UserHandler) HandleGetAllUsers(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *UserHandler) HandleCreateAdminUser() error {
-	numUsers, err := h.userStore.GetNumberOfUsers()
+	numUsers, err := h.userStore.GetNumberAdminUsers()
 	if err != nil {
 		return err
 	}

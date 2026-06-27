@@ -79,9 +79,21 @@ func (h *SmtpHandler) validateRegisterRequest(req *registerSmtpRequest) error {
 func (h *SmtpHandler) HandleCreateSmtpSettings(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r)
 
+	existingSmtp, err := h.smtpStore.GetSmtpSettings(int64(user.Id))
+	if err != nil {
+		h.logger.Printf("ERROR: GetSmtp: %v", err)
+		util.WriteJSON(w, http.StatusInternalServerError, util.Envelope{"error": "internal server error"})
+		return
+	}
+
+	if existingSmtp != nil {
+		util.WriteJSON(w, http.StatusInternalServerError, util.Envelope{"error": "smtp settings already exist"})
+		return
+	}
+
 	var req registerSmtpRequest
 
-	err := json.NewDecoder(r.Body).Decode(&req)
+	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		h.logger.Printf("Error decoding create user request %v", err)
 		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "invalid request payload"})

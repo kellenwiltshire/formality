@@ -6,6 +6,7 @@ import (
 	"formality/internal/middleware"
 	"formality/internal/store"
 	"formality/internal/util"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,7 +15,7 @@ import (
 )
 
 type registerSubmissionRequest struct {
-	Payload string `json:"payload"`
+	Payload []byte `json:"payload"`
 }
 
 type SubmissionHandler struct {
@@ -30,24 +31,30 @@ func NewSubmissionHandler(submissionsStore store.SubmissionsStore, logger *log.L
 }
 
 func (h *SubmissionHandler) HandleCreateSubmission(w http.ResponseWriter, r *http.Request) {
-	idParam := chi.URLParam(r, "id")
+	idParam := chi.URLParam(r, "form_id")
 	if idParam == "" {
 		h.logger.Printf("Invalid Id param")
 		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "invalid id"})
 		return
 	}
 
-	var req registerSubmissionRequest
-
-	err := json.NewDecoder(r.Body).Decode(&req)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		h.logger.Printf("Error decoding create submission request %v", err)
 		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "invalid submission payload"})
 		return
 	}
+	defer r.Body.Close()
+
+	if !json.Valid(body) {
+		h.logger.Printf("Error invalid json %v", err)
+		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "invalid submission payload"})
+		return
+	}
 
 	submission := &store.Submission{
-		Payload: req.Payload,
+		FormId:  idParam,
+		Payload: string(body),
 	}
 
 	err = h.submissionsStore.CreateSubmission(submission)
@@ -63,7 +70,7 @@ func (h *SubmissionHandler) HandleCreateSubmission(w http.ResponseWriter, r *htt
 func (h *SubmissionHandler) HandleGetFormSubmissions(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r)
 
-	idParam := chi.URLParam(r, "id")
+	idParam := chi.URLParam(r, "form_id")
 	if idParam == "" {
 		h.logger.Printf("Invalid Id param")
 		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "invalid id"})

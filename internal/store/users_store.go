@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"errors"
+	"formality/internal/tokens"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -41,7 +42,6 @@ func (p *password) Matches(plaintextPassword string) (bool, error) {
 
 type User struct {
 	Id           int      `json:"id"`
-	Username     string   `json:"username"`
 	Email        string   `json:"email"`
 	PasswordHash password `json:"-"`
 	Role         string   `json:"role"`
@@ -67,12 +67,13 @@ func NewPostgresUserStore(db *sql.DB) *PostgresUserStore {
 type UserStore interface {
 	CreateUser(*User) error
 	GetUser(id int64) (*User, error)
-	GetUserByUsername(username string) (*User, error)
+	GetUserByEmail(email string) (*User, error)
 	UpdateUser(*User) error
 	DeleteUser(id int64) error
 	GetAllUsers() ([]User, error)
-	GetNumberOfUsers() (*int64, error)
-	GetUserToken(scope, plaintextPassword string) (*User, error)
+	GetNumberAdminUsers() (*int64, error)
+	GetUserToken(plaintextPassword string) (*User, error)
+	GetAdminToken(plaintextPassword string) (*User, error)
 }
 
 func (s *PostgresUserStore) CreateUser(user *User) error {
@@ -80,7 +81,7 @@ func (s *PostgresUserStore) CreateUser(user *User) error {
 		INSERT INTO users (email, password_hash, role) values ($1, $2, $3) RETURNING id
 	`
 
-	err := s.db.QueryRow(query, user.Email, user.PasswordHash, user.Role).Scan(&user.Id)
+	err := s.db.QueryRow(query, user.Email, user.PasswordHash.hash, user.Role).Scan(&user.Id)
 	if err != nil {
 		return err
 	}
@@ -106,23 +107,23 @@ func (s *PostgresUserStore) GetUser(id int64) (*User, error) {
 	return user, nil
 }
 
-func (s *PostgresUserStore) GetUserByUsername(username string) (*User, error) {
+func (s *PostgresUserStore) GetUserByEmail(username string) (*User, error) {
 	user := &User{
 		PasswordHash: password{},
 	}
 
 	query := `
-  SELECT id, username, email, password_hash, bio, created_at, updated_at
-  FROM users
-  WHERE username = $1
-  `
+	SELECT id, email, password_hash, created_at, role
+	FROM users
+	WHERE email = $1
+	`
 
 	err := s.db.QueryRow(query, username).Scan(
 		&user.Id,
-		&user.Username,
 		&user.Email,
 		&user.PasswordHash.hash,
 		&user.CreatedAt,
+		&user.Role,
 	)
 
 	if err == sql.ErrNoRows {
@@ -202,12 +203,12 @@ func (s *PostgresUserStore) GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
-func (s *PostgresUserStore) GetNumberOfUsers() (*int64, error) {
+func (s *PostgresUserStore) GetNumberAdminUsers() (*int64, error) {
 	query := `
-		SELECT COUNT(*) FROM users
+		SELECT COUNT(*) FROM users WHERE role = $1
 	`
 	var count *int64
-	err := s.db.QueryRow(query).Scan(&count)
+	err := s.db.QueryRow(query, tokens.ScopeAdmin).Scan(&count)
 	if err != nil {
 		return nil, err
 	}
@@ -215,23 +216,20 @@ func (s *PostgresUserStore) GetNumberOfUsers() (*int64, error) {
 	return count, nil
 }
 
-func (s *PostgresUserStore) GetUserToken(scope, plaintextPassword string) (*User, error) {
-	tokenHash := sha256.Sum256([]byte(plaintextPassword))
+func (s *PostgresUserStore) GetUserToken(token_hash string) (*User, error) {
+	tokenHash := sha256.Sum256([]byte(token_hash))
 
 	query := `
-		SELECT u.id, u.username, u.email, u.created_at, u.role
+		SELECT u.id, u.email, u.created_at, u.role
 		FROM users u
 		INNER JOIN tokens t ON t.user_id = u.id
-		WHERE t.hash = $1 AND t.scope = $2 and t.expiry > $3
+		WHERE t.hash = $1 AND t.expiry > $2
   	`
 
-	user := &User{
-		PasswordHash: password{},
-	}
+	user := &User{}
 
-	err := s.db.QueryRow(query, tokenHash[:], scope, time.Now()).Scan(
+	err := s.db.QueryRow(query, tokenHash[:], time.Now()).Scan(
 		&user.Id,
-		&user.Username,
 		&user.Email,
 		&user.CreatedAt,
 		&user.Role,
@@ -240,6 +238,32 @@ func (s *PostgresUserStore) GetUserToken(scope, plaintextPassword string) (*User
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *PostgresUserStore) GetAdminToken(token_hash string) (*User, error) {
+	tokenHash := sha256.Sum256([]byte(token_hash))
+
+	query := `
+		SELECT u.id, u.email, u.created_at, u.role
+		FROM users u
+		INNER JOIN tokens t ON t.user_id = u.id
+		WHERE t.hash = $1 AND t.scope = $2 AND t.expiry > $3
+  	`
+
+	user := &User{}
+
+	err := s.db.QueryRow(query, tokenHash[:], tokens.ScopeAdmin, time.Now()).Scan(
+		&user.Id,
+		&user.Email,
+		&user.CreatedAt,
+		&user.Role,
+	)
 
 	if err != nil {
 		return nil, err

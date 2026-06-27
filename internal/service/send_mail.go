@@ -32,11 +32,8 @@ func (s *SendMailService) SendMail(submission_id string) error {
 	if err != nil {
 		return err
 	}
-	formId, err := strconv.ParseInt(submission.FormId, 10, 64)
-	if err != nil {
-		return err
-	}
-	form, err := s.formStore.GetFormInfoForEmail(formId)
+
+	form, err := s.formStore.GetFormInfoForEmail(submission.FormId)
 	if err != nil {
 		return err
 	}
@@ -53,15 +50,15 @@ func (s *SendMailService) SendMail(submission_id string) error {
 	msg := []byte("To: " + smtp.RecipientEmail + "\r\n" +
 		"Subject: New Form Response For " + form.Name + " From Formality\r\n" +
 		"\r\n" +
-		submission.Payload)
+		string(submission.Payload))
 
 	err = netSmtp.SendMail(smtp.Host+":"+strconv.Itoa(smtp.Port), auth, smtp.SenderEmail, to, msg)
 	if err != nil {
-		err = s.submissionsStore.UpdateSubmissionStatus(formId, "error")
+		err = s.submissionsStore.UpdateSubmissionStatus(submissionId, "error")
 		return err
 	}
 
-	err = s.submissionsStore.UpdateSubmissionStatus(formId, "dispatched")
+	err = s.submissionsStore.UpdateSubmissionStatus(submissionId, "dispatched")
 	if err != nil {
 		return err
 	}

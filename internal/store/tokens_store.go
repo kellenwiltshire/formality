@@ -45,7 +45,7 @@ func (t *PostgresTokenStore) Insert(token *tokens.Token) error {
 func (t *PostgresTokenStore) DeleteAllTokensForUser(userID int) error {
 	query := `
 		DELETE FROM tokens
-		WHERE user_id = $2
+		WHERE user_id = $1
 	`
 
 	_, err := t.db.Exec(query, userID)

@@ -1,9 +1,11 @@
 package store
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type Form struct {
-	Id          int    `json:"id"`
+	Id          string `json:"id"`
 	UserId      int    `json:"user_id"`
 	Name        string `json:"name"`
 	TargetEmail string `json:"target_email"`
@@ -22,11 +24,11 @@ func NewPostgresFormStore(db *sql.DB) *PostgresFormStore {
 
 type FormStore interface {
 	CreateForm(*Form) error
-	GetForm(form_id int64, user_id int64) (*Form, error)
+	GetForm(form_id string, user_id int64) (*Form, error)
 	UpdateForm(*Form) error
-	DeleteForm(form_id int64, user_id int64) error
+	DeleteForm(form_id string, user_id int64) error
 	GetAllFormsForUser(user_id int64) ([]Form, error)
-	GetFormInfoForEmail(form_id int64) (*Form, error)
+	GetFormInfoForEmail(form_id string) (*Form, error)
 }
 
 func (s *PostgresFormStore) CreateForm(form *Form) error {
@@ -42,7 +44,7 @@ func (s *PostgresFormStore) CreateForm(form *Form) error {
 	return nil
 }
 
-func (s *PostgresFormStore) GetForm(form_id int64, user_id int64) (*Form, error) {
+func (s *PostgresFormStore) GetForm(form_id string, user_id int64) (*Form, error) {
 	form := &Form{}
 
 	query := `
@@ -84,7 +86,7 @@ func (s *PostgresFormStore) UpdateForm(form *Form) error {
 	return nil
 }
 
-func (s *PostgresFormStore) DeleteForm(form_id int64, user_id int64) error {
+func (s *PostgresFormStore) DeleteForm(form_id string, user_id int64) error {
 	query := `
 		DELETE FROM forms WHERE id = $1 AND user_id = $2
 	`
@@ -128,9 +130,9 @@ func (s *PostgresFormStore) GetAllFormsForUser(user_id int64) ([]Form, error) {
 	return forms, nil
 }
 
-func (s *PostgresFormStore) GetFormInfoForEmail(form_id int64) (*Form, error) {
+func (s *PostgresFormStore) GetFormInfoForEmail(form_id string) (*Form, error) {
 	query := `
-		SELECT user_id, target_email, name FROM forms WHERE form_id = $1
+		SELECT user_id, target_email, name FROM forms WHERE id = $1
 	`
 
 	form := &Form{}

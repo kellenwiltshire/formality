@@ -99,7 +99,7 @@ func (s *PostgresSubmissionsStore) DeleteSubmission(submission_id int64) error {
 
 func (s *PostgresSubmissionsStore) DoesUserOwnForm(user_id int64, form_id string) error {
 	query := `
-		"SELECT COUNT(*) FROM forms WHERE id = $1 AND user_id = $2"
+		SELECT COUNT(*) FROM forms WHERE id = $1 AND user_id = $2
 	`
 
 	var count *int64

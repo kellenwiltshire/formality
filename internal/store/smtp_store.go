@@ -128,21 +128,21 @@ func (s *PostgresSmtpStore) CreateSmtpSettings(smtp *Smtp) error {
 		INSERT INTO smtp_Settings (user_id, host, port, username, password_encrypted, encryption_type, recipient_email, sender_email) values ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id
 	`
 
-	err := s.db.QueryRow(query, smtp.UserID, smtp.Host, smtp.Port, smtp.Username, smtp.PasswordEncrypted, smtp.EncryptionType, smtp.RecipientEmail, smtp.SenderEmail).Scan(&smtp.Id)
+	err := s.db.QueryRow(query, smtp.UserID, smtp.Host, smtp.Port, smtp.Username, smtp.PasswordEncrypted.cipher, smtp.EncryptionType, smtp.RecipientEmail, smtp.SenderEmail).Scan(&smtp.Id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *PostgresSmtpStore) GetSmtpSettings(id int64) (*Smtp, error) {
+func (s *PostgresSmtpStore) GetSmtpSettings(user_id int64) (*Smtp, error) {
 	smtp := &Smtp{}
 
 	query := `
-		SELECT id, user_id, host, port, username, encryption_type, updated_at, recipient_email, sender_email FROM smtp_settings WHERE id = $1
+		SELECT id, user_id, host, port, username, encryption_type, updated_at, recipient_email, sender_email FROM smtp_settings WHERE user_id = $1
 	`
 
-	err := s.db.QueryRow(query, id).Scan(&smtp.Id, &smtp.UserID, &smtp.Host, &smtp.Port, &smtp.Username, &smtp.EncryptionType, &smtp.UpdatedAt, &smtp.RecipientEmail, &smtp.SenderEmail)
+	err := s.db.QueryRow(query, user_id).Scan(&smtp.Id, &smtp.UserID, &smtp.Host, &smtp.Port, &smtp.Username, &smtp.EncryptionType, &smtp.UpdatedAt, &smtp.RecipientEmail, &smtp.SenderEmail)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -158,7 +158,7 @@ func (s *PostgresSmtpStore) UpdateSmtpSettings(smtp *Smtp) error {
 	query := `
 		UPDATE smtp_Settings SET host = $1, port = $2, username = $3, password_encrypted = $4, encryption_type = $5, updated_at = CURRENT_TIMESTAMP, recipient_email = $6, sender_email = $7 WHERE id = $8
 	`
-	result, err := s.db.Exec(query, smtp.Host, smtp.Port, smtp.Username, smtp.PasswordEncrypted, smtp.EncryptionType, smtp.RecipientEmail, smtp.SenderEmail, smtp.Id)
+	result, err := s.db.Exec(query, smtp.Host, smtp.Port, smtp.Username, smtp.PasswordEncrypted.cipher, smtp.EncryptionType, smtp.RecipientEmail, smtp.SenderEmail, smtp.Id)
 	if err != nil {
 		return err
 	}
@@ -175,12 +175,12 @@ func (s *PostgresSmtpStore) UpdateSmtpSettings(smtp *Smtp) error {
 	return nil
 }
 
-func (s *PostgresSmtpStore) DeleteSmtpSettings(id int64) error {
+func (s *PostgresSmtpStore) DeleteSmtpSettings(user_id int64) error {
 	query := `
-		DELETE FROM smtp_settings WHERE id = $1
+		DELETE FROM smtp_settings WHERE user_id = $1
 	`
 
-	result, err := s.db.Exec(query, id)
+	result, err := s.db.Exec(query, user_id)
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func (s *PostgresSmtpStore) GetSmtpEmailSettings(user_id int64) (*Smtp, string, 
 	smtp := &Smtp{}
 
 	query := `
-		SELECT id, user_id, host, port, username, password, encryption_type, updated_at, recipient_email, sender_email FROM smtp_settings WHERE user_id = $1
+		SELECT id, user_id, host, port, username, password_encrypted, encryption_type, updated_at, recipient_email, sender_email FROM smtp_settings WHERE user_id = $1
 	`
 
 	var password string

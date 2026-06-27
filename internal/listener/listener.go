@@ -55,7 +55,9 @@ func Listener(app *app.Application) error {
 	for n := range watcher.Notify {
 		if n != nil {
 			err := app.SendMailService.SendMail(n.Extra)
-			app.Logger.Printf("ERROR: SendMailError %v", err)
+			if err != nil {
+				app.Logger.Printf("ERROR: SendMailError %v", err)
+			}
 		}
 	}
 	return nil

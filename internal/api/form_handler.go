@@ -9,6 +9,8 @@ import (
 	"formality/internal/util"
 	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type createFormRequest struct {
@@ -77,10 +79,10 @@ func (h *FormHandler) HandleCreateForm(w http.ResponseWriter, r *http.Request) {
 func (h *FormHandler) HandleGetForm(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r)
 
-	formId, err := util.ReadIDParam(r)
-	if err != nil {
-		h.logger.Printf("Error getting form ID %v", err)
-		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "Error reading form id"})
+	formId := chi.URLParam(r, "form_id")
+	if formId == "" {
+		h.logger.Panicf("Error: decodeParam %v", formId)
+		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "invalid id"})
 		return
 	}
 
@@ -97,11 +99,9 @@ func (h *FormHandler) HandleGetForm(w http.ResponseWriter, r *http.Request) {
 func (h *FormHandler) HandleUpdateForm(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r)
 
-	formId, err := util.ReadIDParam(r)
-	if err != nil {
-		h.logger.Printf("Error getting form ID %v", err)
-		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "Error reading form id"})
-		return
+	formId := chi.URLParam(r, "form_id")
+	if formId == "" {
+		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "invalid id"})
 	}
 
 	existingForm, err := h.formStore.GetForm(formId, int64(user.Id))
@@ -143,20 +143,18 @@ func (h *FormHandler) HandleUpdateForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.WriteJSON(w, http.StatusOK, util.Envelope{"user": existingForm.Id})
+	util.WriteJSON(w, http.StatusOK, util.Envelope{"form": existingForm.Id})
 }
 
 func (h *FormHandler) HandleDeleteForm(w http.ResponseWriter, r *http.Request) {
 	user := middleware.GetUser(r)
 
-	formId, err := util.ReadIDParam(r)
-	if err != nil {
-		h.logger.Printf("Error: ReadParamId: %v", err)
-		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "invalid form id"})
-		return
+	formId := chi.URLParam(r, "form_id")
+	if formId == "" {
+		util.WriteJSON(w, http.StatusBadRequest, util.Envelope{"error": "invalid id"})
 	}
 
-	err = h.formStore.DeleteForm(formId, int64(user.Id))
+	err := h.formStore.DeleteForm(formId, int64(user.Id))
 	if err == sql.ErrNoRows {
 		http.Error(w, "form not found", http.StatusNotFound)
 		return
