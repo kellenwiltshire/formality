@@ -50,3 +50,7 @@ It passed! Merged. Not to try a release. A brand new release of v0.0.1!
 It failed. Issue with the login process for dockerhub. Hmm...
 
 I think I may be passing flags wrong to the makefile commands, if this doesn't work, I may try another way to login to Dockerhub in actions. Of course, I think I ALSO need to create a new release to test any changes...
+
+I got it to work! Damn typos... But on release it build an image, then tagged the image with both the release tag, and the latest tag, and then uploaded them to docker. Perfect.
+
+Good for this part. Next up, integrating with `docker-compose` which means passing `env` variables into the container, rather than creating an `env` file. Will be a big change, but hopefully not too bad.
