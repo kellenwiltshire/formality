@@ -16,6 +16,28 @@ services:
     volumes:
       - './db-data:/var/lib/postgresql/data/:rw'
 
+  formality:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8080:8080
+    networks:
+      - internal
+      - default
+    depends_on:
+      - database
+    env_file:
+      - .env
+    environment:
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_DATABASE_NAME=${DB_DATABASE_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - SECRET_KEY=${SECRET_KEY}
+      - ADMIN_PASS=${ADMIN_PASS}
+
 networks:
   default:
   internal:

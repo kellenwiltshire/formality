@@ -35,7 +35,7 @@ func (um *UserMiddleware) Authenticate(next http.Handler) http.Handler {
 
 		c, err := r.Cookie("formality_auth")
 		if err != nil {
-			if err == http.ErrNoCookie {
+			if err != http.ErrNoCookie {
 				util.WriteJSON(w, http.StatusUnauthorized, util.Envelope{"error": "no token received"})
 				return
 			}

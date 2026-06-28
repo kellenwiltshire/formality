@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/kellenwiltshire/formality/internal/middleware"
 	"github.com/kellenwiltshire/formality/internal/store"
@@ -189,9 +190,9 @@ func (h *UserHandler) HandleCreateAdminUser() error {
 	}
 
 	if *numUsers == 0 {
-		adminPass, err := util.LoadDotEnvVariable("ADMIN_PASS")
-		if err != nil {
-			return err
+		adminPass := os.Getenv("ADMIN_PASS")
+		if adminPass == "" {
+			return fmt.Errorf("Must provide a default Admin Password")
 		}
 
 		user := &store.User{

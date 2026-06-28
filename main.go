@@ -1,9 +1,10 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net/http"
+	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -13,11 +14,13 @@ import (
 )
 
 func main() {
+	port := 8080
 
-	// Todo: This will be replaced with using env variable for port in the future
-	var port int
-	flag.IntVar(&port, "port", 8080, "go backend server port")
-	flag.Parse()
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		if p, err := strconv.Atoi(envPort); err == nil {
+			port = p
+		}
+	}
 
 	app, err := app.NewApplication()
 	if err != nil {

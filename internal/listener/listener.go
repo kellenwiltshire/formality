@@ -2,34 +2,34 @@ package listener
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/kellenwiltshire/formality/internal/app"
-	"github.com/kellenwiltshire/formality/internal/util"
 
 	"github.com/lib/pq"
 )
 
 func Listener(app *app.Application) error {
-	host, err := util.LoadDotEnvVariable("DB_HOST")
-	if err != nil {
-		return err
+	host := os.Getenv("DB_HOST")
+	if host == "" {
+		return fmt.Errorf("Must provide a Database Host")
 	}
-	port, err := util.LoadDotEnvVariable("DB_PORT")
-	if err != nil {
-		return err
+	port := os.Getenv("DB_PORT")
+	if port == "" {
+		return fmt.Errorf("Must provide a Database Port")
 	}
-	user, err := util.LoadDotEnvVariable("DB_USERNAME")
-	if err != nil {
-		return err
+	user := os.Getenv("DB_USERNAME")
+	if user == "" {
+		return fmt.Errorf("Must provide a Database User")
 	}
-	dbname, err := util.LoadDotEnvVariable("DB_DATABASE_NAME")
-	if err != nil {
-		return err
+	dbname := os.Getenv("DB_DATABASE_NAME")
+	if dbname == "" {
+		return fmt.Errorf("Must provide a Database Name")
 	}
-	pass, err := util.LoadDotEnvVariable("DB_PASSWORD")
-	if err != nil {
-		return err
+	pass := os.Getenv("DB_PASSWORD")
+	if pass == "" {
+		return fmt.Errorf("Must provide a Database Password")
 	}
 
 	connStr := fmt.Sprintf(
@@ -48,7 +48,7 @@ func Listener(app *app.Application) error {
 		nil,
 	)
 
-	err = watcher.Listen("form_submissions_inserts")
+	err := watcher.Listen("form_submissions_inserts")
 	if err != nil {
 		return err
 	}

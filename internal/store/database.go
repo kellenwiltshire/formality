@@ -4,35 +4,33 @@ import (
 	"database/sql"
 	"fmt"
 	"io/fs"
+	"os"
 	"strconv"
-
-	"github.com/kellenwiltshire/formality/internal/util"
 
 	"github.com/pressly/goose/v3"
 )
 
 func ConnectDatabase() (*sql.DB, error) {
 
-	host, err := util.LoadDotEnvVariable("DB_HOST")
-	if err != nil {
-		return nil, fmt.Errorf("db: open %w", err)
+	host := os.Getenv("DB_HOST")
+	if host == "" {
+		return nil, fmt.Errorf("Must provide a Database Host")
 	}
-	envPort, err := util.LoadDotEnvVariable("DB_PORT")
-	if err != nil {
-		return nil, fmt.Errorf("db: open %w", err)
+	port, err := strconv.ParseInt(os.Getenv("DB_PORT"), 10, 64)
+	if port == 0 || err != nil {
+		return nil, fmt.Errorf("Must provide a Database Port")
 	}
-	port, _ := strconv.Atoi(envPort)
-	user, err := util.LoadDotEnvVariable("DB_USERNAME")
-	if err != nil {
-		return nil, fmt.Errorf("db: open %w", err)
+	user := os.Getenv("DB_USERNAME")
+	if user == "" {
+		return nil, fmt.Errorf("Must provide a Database User")
 	}
-	dbname, err := util.LoadDotEnvVariable("DB_DATABASE_NAME")
-	if err != nil {
-		return nil, fmt.Errorf("db: open %w", err)
+	dbname := os.Getenv("DB_DATABASE_NAME")
+	if dbname == "" {
+		return nil, fmt.Errorf("Must provide a Database Name")
 	}
-	pass, err := util.LoadDotEnvVariable("DB_PASSWORD")
-	if err != nil {
-		return nil, fmt.Errorf("db: open %w", err)
+	pass := os.Getenv("DB_PASSWORD")
+	if pass == "" {
+		return nil, fmt.Errorf("Must provide a Database Password")
 	}
 
 	// set up postgres sql to open it.
@@ -45,7 +43,7 @@ func ConnectDatabase() (*sql.DB, error) {
 	}
 
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("db: open %w", err)
+		return nil, fmt.Errorf("db: ping %w", err)
 	}
 
 	fmt.Println("Connected to Database...")

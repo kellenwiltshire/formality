@@ -54,3 +54,5 @@ I think I may be passing flags wrong to the makefile commands, if this doesn't w
 I got it to work! Damn typos... But on release it build an image, then tagged the image with both the release tag, and the latest tag, and then uploaded them to docker. Perfect.
 
 Good for this part. Next up, integrating with `docker-compose` which means passing `env` variables into the container, rather than creating an `env` file. Will be a big change, but hopefully not too bad.
+
+Which was also pretty easy! Use a local build context for the image (going to try pulling the image too once I have my tweaks in) and then update to pull environment variables from the environment and not a file. Pretty straight-forward. Up and running like new. I also setup a `Dockerfile.dev` that I can run with a new tool I found called `Air` which watches for my go change. No need to keep re-loading every time I make a change. Awesome.

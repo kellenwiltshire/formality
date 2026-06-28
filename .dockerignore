@@ -17,3 +17,5 @@ eslint.config.mjs
 .env
 
 journey
+
+db-data

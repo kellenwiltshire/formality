@@ -8,8 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-
-	"github.com/kellenwiltshire/formality/internal/util"
+	"os"
 )
 
 type encryption struct {
@@ -18,9 +17,9 @@ type encryption struct {
 }
 
 func (e *encryption) EncryptAES(plaintext string) error {
-	secretKey, err := util.LoadDotEnvVariable("SECRET_KEY")
-	if err != nil {
-		return fmt.Errorf("Error getting secret key: %w", err)
+	secretKey := os.Getenv("SECRET_KEY")
+	if secretKey == "" {
+		return fmt.Errorf("Error getting secret key from environment")
 	}
 
 	key, err := base64.StdEncoding.DecodeString(secretKey)
@@ -52,9 +51,9 @@ func (e *encryption) EncryptAES(plaintext string) error {
 }
 
 func (e *encryption) DecryptAES(encrypted string) (string, error) {
-	secretKey, err := util.LoadDotEnvVariable("SECRET_KEY")
-	if err != nil {
-		return "", fmt.Errorf("Error getting secret key: %w", err)
+	secretKey := os.Getenv("SECRET_KEY")
+	if secretKey == "" {
+		return "", fmt.Errorf("Error getting secret key from environment")
 	}
 
 	key, err := base64.StdEncoding.DecodeString(secretKey)

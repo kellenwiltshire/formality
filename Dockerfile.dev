@@ -1,0 +1,16 @@
+FROM golang:1.26.3-bookworm
+
+WORKDIR /app
+
+# Install Air for real-time live reloading on file changes
+RUN go install github.com/air-verse/air@latest
+
+COPY go.mod go.sum ./
+
+RUN go mod download
+
+COPY . .
+
+EXPOSE 8080
+
+CMD ["air"]
