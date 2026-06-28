@@ -42,3 +42,5 @@ On new releases:
 - Push the image(s) to dockerhub
 
 This way there is only a new version for users to update to when there is a new release. I don't need a CI/CD setup for this, unlike a website, since the updates wouldn't be that often since it is self-hosted.
+
+I've merged my changes so that I can have the actions ready. Now to test them. I'll create a new PR with this update journey log, and if that starts an image build, I'll know one of them is correct! However, I am thinking that the build is likely to fail, since I am not sure if a build will succeed without environment variables. It should, but we'll see.
