@@ -39,4 +39,6 @@ On new releases:
 - Build the docker image from the `main` branch
 - Tag the image with the release number (ie 1.0, 1.1, etc)
 - Tag the image as `latest`
-- Push the image to dockerhub
+- Push the image(s) to dockerhub
+
+This way there is only a new version for users to update to when there is a new release. I don't need a CI/CD setup for this, unlike a website, since the updates wouldn't be that often since it is self-hosted.
