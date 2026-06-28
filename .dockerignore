@@ -14,3 +14,6 @@ eslint.config.mjs
 .github
 
 .env.local
+.env
+
+journey

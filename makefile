@@ -1,8 +1,9 @@
-REGISTRY_HOST := docker.io
+REGISTRY_HOST := kellenwiltshire
 USERNAME := $(DOCKER_USERNAME)
-BUILD_IMAGE := ${REGISTRY_HOST}/formality
+BUILD_IMAGE := $(REGISTRY_HOST)/formality
 GIT_SHA :=$(shell git rev-parse HEAD)
-BUILD_TAG := $(if $(BUILD_TAG), $(BUILD_TAG), latest)
+BUILD_TAG ?= $(GIT_SHA)
+
 .DEFAULT_GOAL := run
 
 run:
@@ -24,7 +25,8 @@ build-image:
 		.
 
 build-image-login:
-	"$$DOCKERHUB_TOKEN" | docker login -u $(USERNAME) --password-stdin \
+	echo $(DOCKERHUB_TOKEN) | docker login -u $(USERNAME) --password-stdin
 
-build-image-push:
-	docker push $(BUILD_IMAGE):$(GIT_SHA)
+build-image-push: docker-image-login
+	docker image tag $(BUILD_IMAGE):$(GIT_SHA) $(BUILD_IMAGE):$(BUILD_TAG)
+	docker image push $(BUILD_IMAGE):$(BUILD_TAG)

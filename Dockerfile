@@ -13,7 +13,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the source code
-COPY main.go .
+COPY . .
 
 # Build the Go application
 RUN go build -o main .
@@ -37,8 +37,6 @@ WORKDIR /app
 COPY --from=build /app/main .
 COPY --from=build /go/bin/goose /usr/local/bin/goose
 COPY migrations ./migrations
-COPY static ./static
-COPY templates ./templates
 
 # Expose the port the app runs on
 EXPOSE 8080

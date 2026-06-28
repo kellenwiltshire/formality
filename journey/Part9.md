@@ -1,4 +1,4 @@
-# Dockerizing and Actions
+# Part 9 - Dockerizing and Actions
 
 Now to work on Dockerizing this project for a nice v0.1 release.
 
@@ -19,8 +19,24 @@ First is the `makefile` I want this to contain the following actions:
 - `build-image`
 - - build the docker image
 - `build-image-login`
-- - login to dockerhub
+- - handle dockerhub login
 - `build-image-push`
 - - push the image to dockerhub
 - `run`
 - - run the `go` project locally
+
+I needed some help with it from AI (boo :( ) but I was able to get a decent makefile setup. Now to work on some actions.
+
+I want the `github action` to do a couple things:
+
+On new PR's:
+
+- Confirm the project builds
+- Eventually I will add in running tests, and any FE related building/linting as well
+
+On new releases:
+
+- Build the docker image from the `main` branch
+- Tag the image with the release number (ie 1.0, 1.1, etc)
+- Tag the image as `latest`
+- Push the image to dockerhub
