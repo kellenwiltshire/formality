@@ -26,6 +26,6 @@ build-image:
 build-image-login:
 	echo $(DOCKERHUB_TOKEN) | docker login -u $(DOCKER_USERNAME) --password-stdin
 
-build-image-push: docker-image-login
+build-image-push: build-image-login
 	docker image tag $(BUILD_IMAGE):$(GIT_SHA) $(BUILD_IMAGE):$(BUILD_TAG)
 	docker image push $(BUILD_IMAGE):$(BUILD_TAG)

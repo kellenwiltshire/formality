@@ -44,3 +44,9 @@ On new releases:
 This way there is only a new version for users to update to when there is a new release. I don't need a CI/CD setup for this, unlike a website, since the updates wouldn't be that often since it is self-hosted.
 
 I've merged my changes so that I can have the actions ready. Now to test them. I'll create a new PR with this update journey log, and if that starts an image build, I'll know one of them is correct! However, I am thinking that the build is likely to fail, since I am not sure if a build will succeed without environment variables. It should, but we'll see.
+
+It passed! Merged. Not to try a release. A brand new release of v0.0.1!
+
+It failed. Issue with the login process for dockerhub. Hmm...
+
+I think I may be passing flags wrong to the makefile commands, if this doesn't work, I may try another way to login to Dockerhub in actions. Of course, I think I ALSO need to create a new release to test any changes...
