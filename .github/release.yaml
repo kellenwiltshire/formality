@@ -1,0 +1,20 @@
+name: release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build_and_push:
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: make build-image
+
+      - run: make build-image-push -BUILD_TAG=${{ github.event.release.tag_name }}
+
+      - run: make build-image-push -BUILD_TAG=latest

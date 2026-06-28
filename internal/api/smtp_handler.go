@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"formality/internal/middleware"
-	"formality/internal/service"
-	"formality/internal/store"
-	"formality/internal/util"
 	"log"
 	"net/http"
 	"regexp"
+
+	"github.com/kellenwiltshire/formality/internal/middleware"
+	"github.com/kellenwiltshire/formality/internal/service"
+	"github.com/kellenwiltshire/formality/internal/store"
+	"github.com/kellenwiltshire/formality/internal/util"
 )
 
 type registerSmtpRequest struct {

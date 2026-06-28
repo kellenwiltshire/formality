@@ -2,9 +2,10 @@ package listener
 
 import (
 	"fmt"
-	"formality/internal/app"
-	"formality/internal/util"
 	"time"
+
+	"github.com/kellenwiltshire/formality/internal/app"
+	"github.com/kellenwiltshire/formality/internal/util"
 
 	"github.com/lib/pq"
 )

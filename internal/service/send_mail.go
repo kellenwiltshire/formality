@@ -1,10 +1,11 @@
 package service
 
 import (
-	"formality/internal/store"
 	"log"
 	netSmtp "net/smtp"
 	"strconv"
+
+	"github.com/kellenwiltshire/formality/internal/store"
 )
 
 type SendMailService struct {

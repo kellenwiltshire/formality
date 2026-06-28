@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"formality/internal/app"
-	"formality/internal/listener"
-	"formality/internal/routes"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/kellenwiltshire/formality/internal/app"
+	"github.com/kellenwiltshire/formality/internal/listener"
+	"github.com/kellenwiltshire/formality/internal/routes"
 )
 
 func main() {

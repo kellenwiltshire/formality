@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"formality/internal/app"
+	"github.com/kellenwiltshire/formality/internal/app"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

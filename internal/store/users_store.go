@@ -4,8 +4,9 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"errors"
-	"formality/internal/tokens"
 	"time"
+
+	"github.com/kellenwiltshire/formality/internal/tokens"
 
 	"golang.org/x/crypto/bcrypt"
 )

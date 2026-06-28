@@ -7,8 +7,9 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"fmt"
-	"formality/internal/util"
 	"io"
+
+	"github.com/kellenwiltshire/formality/internal/util"
 )
 
 type encryption struct {

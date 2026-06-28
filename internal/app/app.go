@@ -2,13 +2,14 @@ package app
 
 import (
 	"database/sql"
-	"formality/internal/api"
-	"formality/internal/middleware"
-	"formality/internal/service"
-	"formality/internal/store"
-	"formality/migrations"
 	"log"
 	"os"
+
+	"github.com/kellenwiltshire/formality/internal/api"
+	"github.com/kellenwiltshire/formality/internal/middleware"
+	"github.com/kellenwiltshire/formality/internal/service"
+	"github.com/kellenwiltshire/formality/internal/store"
+	"github.com/kellenwiltshire/formality/migrations"
 )
 
 type Application struct {
