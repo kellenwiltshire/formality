@@ -4,11 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"formality/internal/middleware"
-	"formality/internal/store"
-	"formality/internal/util"
 	"log"
 	"net/http"
+
+	"github.com/kellenwiltshire/formality/internal/middleware"
+	"github.com/kellenwiltshire/formality/internal/store"
+	"github.com/kellenwiltshire/formality/internal/util"
 
 	"github.com/go-chi/chi/v5"
 )

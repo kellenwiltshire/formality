@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"formality/internal/middleware"
-	"formality/internal/store"
-	"formality/internal/util"
 	"log"
 	"net/http"
+
+	"github.com/kellenwiltshire/formality/internal/middleware"
+	"github.com/kellenwiltshire/formality/internal/store"
+	"github.com/kellenwiltshire/formality/internal/util"
 )
 
 type registerUserRequest struct {

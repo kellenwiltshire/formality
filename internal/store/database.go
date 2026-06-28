@@ -3,9 +3,10 @@ package store
 import (
 	"database/sql"
 	"fmt"
-	"formality/internal/util"
 	"io/fs"
 	"strconv"
+
+	"github.com/kellenwiltshire/formality/internal/util"
 
 	"github.com/pressly/goose/v3"
 )

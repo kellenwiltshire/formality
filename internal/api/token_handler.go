@@ -2,13 +2,14 @@ package api
 
 import (
 	"encoding/json"
-	"formality/internal/middleware"
-	"formality/internal/store"
-	"formality/internal/tokens"
-	"formality/internal/util"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/kellenwiltshire/formality/internal/middleware"
+	"github.com/kellenwiltshire/formality/internal/store"
+	"github.com/kellenwiltshire/formality/internal/tokens"
+	"github.com/kellenwiltshire/formality/internal/util"
 )
 
 type TokenHandler struct {

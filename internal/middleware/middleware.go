@@ -3,9 +3,10 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"formality/internal/store"
-	"formality/internal/util"
 	"net/http"
+
+	"github.com/kellenwiltshire/formality/internal/store"
+	"github.com/kellenwiltshire/formality/internal/util"
 )
 
 type UserMiddleware struct {

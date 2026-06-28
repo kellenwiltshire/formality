@@ -2,8 +2,9 @@ package store
 
 import (
 	"database/sql"
-	"formality/internal/tokens"
 	"time"
+
+	"github.com/kellenwiltshire/formality/internal/tokens"
 )
 
 type PostgresTokenStore struct {
